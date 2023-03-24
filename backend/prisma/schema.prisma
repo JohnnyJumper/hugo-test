@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model application {
+  application_id Int       @id @default(autoincrement())
+  user_id        Int
+  created_at     DateTime? @default(now()) @db.Timestamp(6)
+  updated_at     DateTime? @default(now()) @db.Timestamp(6)
+  user           user      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  vehicle        vehicle[]
+}
+
+model user {
+  user_id         Int           @id @default(autoincrement())
+  first_name      String        @db.VarChar(255)
+  last_name       String        @db.VarChar(255)
+  dob             DateTime      @db.Date
+  address_street  String        @db.VarChar(255)
+  address_city    String        @db.VarChar(255)
+  address_state   String        @db.VarChar(2)
+  address_zipcode String        @db.VarChar(10)
+  application     application[]
+}
+
+model vehicle {
+  vehicle_id     Int         @id @default(autoincrement())
+  application_id Int
+  vin            String      @unique(map: "unique_vin") @db.VarChar(17)
+  year           Int
+  make           String      @db.VarChar(255)
+  model          String      @db.VarChar(255)
+  application    application @relation(fields: [application_id], references: [application_id], onDelete: NoAction, onUpdate: NoAction)
+}
